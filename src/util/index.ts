@@ -3,7 +3,7 @@ import {workspace, window} from 'vscode';
 //UTILITIES
 export function getDecorationTypeFromConfig() {
   const config = workspace.getConfiguration("maxLine");
-  const borderColor = (config.get("borderColor") as string) || 'red';
+  const borderColor = (config.get("borderColor") as string) || '#e28085';
   const borderWidth = config.get("borderWidth") || '1px';
   const borderStyle = config.get("borderStyle") || 'solid';
   const decorationType = window.createTextEditorDecorationType({

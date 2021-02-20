@@ -54,6 +54,7 @@
         },
         "maxLine.borderColor": {
           "type": "string",
+          "default": "#e28085",
           "description": "The border color."
         }
       }
