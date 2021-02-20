@@ -5,6 +5,8 @@
 
 ## 参数
 
-- maxLine.language: string[]
+- maxline.language: string[]
 
-- maxLine.max： number
+- maxline.max： number
+
+- maxline.borderColor: string

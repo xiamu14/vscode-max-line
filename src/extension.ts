@@ -13,8 +13,8 @@ import {
 } from "vscode";
 import { getDecorationTypeFromConfig } from "./util";
 
-const config = workspace.getConfiguration("maxLine");
-const maxLines = (config.get("max") || 180) as number; // 默认文件最大行数限制 180
+let config = workspace.getConfiguration("maxLine");
+let maxLines = config.get('max') as number;
 let myStatusBarItem: StatusBarItem;
 let decorationType = getDecorationTypeFromConfig();
 let language = window.activeTextEditor?.document.languageId as string;
@@ -24,11 +24,9 @@ export function activate(context: ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
   let { subscriptions } = context;
-  const myCommandId = "maxLine.warning";
   // console.log("查看下配置啊", maxLines);
   // Marked: create a statusBarItem
   myStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 0);
-  myStatusBarItem.command = myCommandId;
   subscriptions.push(myStatusBarItem);
 
   subscriptions.push(
@@ -49,7 +47,7 @@ export function deactivate() {}
 function execute(subscriptions: any, tag: "init" | "changeLanguage") {
   if (!(config.get("language") as string[]).includes(language)) {
     if (tag === "changeLanguage") {
-      myStatusBarItem.dispose();
+      myStatusBarItem.hide();
       decorationType.dispose();
     }
   } else {
@@ -75,6 +73,8 @@ function execute(subscriptions: any, tag: "init" | "changeLanguage") {
     );
     subscriptions.push(
       workspace.onDidChangeConfiguration(() => {
+         config = workspace.getConfiguration("maxLine");
+ maxLines = config.get('max') as number;
         updateStatusBarItem();
         updateDecorations();
       })
@@ -84,7 +84,7 @@ function execute(subscriptions: any, tag: "init" | "changeLanguage") {
 
 function updateDecorations() {
   const n = window.activeTextEditor?.document.lineCount;
-  // console.log('查看下代码行数', n);
+  // console.log('查看下代码行数', maxLines, n);
   decorationType.dispose();
   if (n && n > maxLines) {
     decorationType = getDecorationTypeFromConfig();
@@ -104,6 +104,7 @@ function updateStatusBarItem(): void {
     myStatusBarItem.text = `$(warning) Exceeds the maximum limit of ${maxLines} lines`;
     myStatusBarItem.color = "#e28085";
     myStatusBarItem.show();
+    // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
   } else {
     myStatusBarItem.hide();
   }

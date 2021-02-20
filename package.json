@@ -3,6 +3,10 @@
   "displayName": "Max Line",
   "description": "keeping the code with the limit line.",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xiamu14/vscode-max-line.git"
+  },
   "engines": {
     "vscode": "^1.53.0"
   },
@@ -19,15 +23,8 @@
     "max lines",
     "max line",
     "limit lines of file"
-],
+  ],
   "contributes": {
-    "commands": [
-      {
-        "command": "maxLine.warning",
-        "category": "maxLine",
-        "title": "Prompt that the number of lines of code exceeds the limit."
-      }
-    ],
     "configuration": {
       "type": "object",
       "title": "Max Line",
@@ -52,7 +49,7 @@
         },
         "maxLine.max": {
           "type": "number",
-          "default": 140,
+          "default": 180,
           "description": "The max lines of file."
         },
         "maxLine.borderColor": {
