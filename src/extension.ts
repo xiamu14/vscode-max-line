@@ -17,13 +17,13 @@ let config = workspace.getConfiguration("maxLine");
 let maxLines = config.get("max") as number;
 let myStatusBarItem: StatusBarItem;
 let decorationType = getDecorationTypeFromConfig();
-let language = window.activeTextEditor?.document.languageId as string;
+let language = window.activeTextEditor?.document.languageId as string; // TODO: 这里vscode 刚启动还没有激活编辑文件时，activeTextEditor 是 undefined
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log('检查插件是否已启动');
+  console.log("检查插件是否已启动");
   let { subscriptions } = context;
   // console.log("查看下配置啊", maxLines);
   // Marked: create a statusBarItem
@@ -46,7 +46,7 @@ export function activate(context: ExtensionContext) {
 export function deactivate() {}
 
 function execute(subscriptions: any, tag: "init" | "changeLanguage") {
-  console.log('检查文件类型', language);
+  console.log("检查文件类型", language);
   if (!(config.get("language") as string[]).includes(language)) {
     if (tag === "changeLanguage") {
       myStatusBarItem.hide();
@@ -86,7 +86,7 @@ function execute(subscriptions: any, tag: "init" | "changeLanguage") {
 
 function updateDecorations() {
   const n = window.activeTextEditor?.document.lineCount;
-  console.log('查看下代码行数', maxLines, n);
+  console.log("查看下代码行数", maxLines, n);
   decorationType.dispose();
   if (n && n > maxLines) {
     decorationType = getDecorationTypeFromConfig();
