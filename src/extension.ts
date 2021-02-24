@@ -107,6 +107,11 @@ function updateStatusBarItem(): void {
     myStatusBarItem.color = "#e28085";
     myStatusBarItem.show();
     // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
+  } else if (n && n <= maxLines) {
+    myStatusBarItem.text = `Lines: ${n}`;
+    // myStatusBarItem.color = "#fff";
+    myStatusBarItem.show();
+    // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
   } else {
     myStatusBarItem.hide();
   }
