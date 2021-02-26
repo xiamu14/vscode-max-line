@@ -2,7 +2,7 @@
   "name": "vscode-max-line",
   "displayName": "Max Line",
   "description": "keeping the code with the limit line.",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/xiamu14/vscode-max-line.git"

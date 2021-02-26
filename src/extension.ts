@@ -18,6 +18,7 @@ let maxLines = config.get("max") as number;
 let myStatusBarItem: StatusBarItem;
 let decorationType = getDecorationTypeFromConfig();
 let language = window.activeTextEditor?.document.languageId as string; // TODO: 这里vscode 刚启动还没有激活编辑文件时，activeTextEditor 是 undefined
+console.log('这里不一定？？', window.activeTextEditor)
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext) {
@@ -28,6 +29,8 @@ export function activate(context: ExtensionContext) {
   // console.log("查看下配置啊", maxLines);
   // Marked: create a statusBarItem
   myStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 100);
+console.log('这里不一定？？', window.activeTextEditor)
+
   subscriptions.push(myStatusBarItem);
 
   subscriptions.push(
@@ -38,6 +41,17 @@ export function activate(context: ExtensionContext) {
       }
     })
   );
+
+  subscriptions.push(
+    workspace.onDidOpenTextDocument(() => {
+      console.log('检查看看啊,onDidOpenTextDocument');
+      if (!language) {
+        language = window.activeTextEditor?.document.languageId as string;
+      }
+      updateStatusBarItem();
+      updateDecorations();
+    })
+  )
 
   execute(subscriptions, "init");
 }
@@ -61,6 +75,8 @@ function execute(subscriptions: any, tag: "init" | "changeLanguage") {
     // item always up-to-date
     subscriptions.push(
       window.onDidChangeActiveTextEditor(() => {
+console.log('这里不一定？？', window.activeTextEditor)
+
         updateStatusBarItem();
         updateDecorations();
       })
@@ -73,6 +89,7 @@ function execute(subscriptions: any, tag: "init" | "changeLanguage") {
         updateDecorations();
       })
     );
+    
     subscriptions.push(
       workspace.onDidChangeConfiguration(() => {
         config = workspace.getConfiguration("maxLine");
@@ -109,9 +126,9 @@ function updateStatusBarItem(): void {
     // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
   } else if (n && n <= maxLines) {
     myStatusBarItem.text = `Lines: ${n}`;
-    // myStatusBarItem.color = "#fff";
+    myStatusBarItem.color = undefined;
     myStatusBarItem.show();
-    // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
+    console.log('奇怪，这里怎么不显示了', myStatusBarItem);
   } else {
     myStatusBarItem.hide();
   }
