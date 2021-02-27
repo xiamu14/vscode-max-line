@@ -17,93 +17,83 @@ let config = workspace.getConfiguration("maxLine");
 let maxLines = config.get("max") as number;
 let myStatusBarItem: StatusBarItem;
 let decorationType = getDecorationTypeFromConfig();
-let language = window.activeTextEditor?.document.languageId as string; // TODO: 这里vscode 刚启动还没有激活编辑文件时，activeTextEditor 是 undefined
-console.log('这里不一定？？', window.activeTextEditor)
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
-  console.log("检查插件是否已启动");
+  console.log("== 插件初始化 ==");
   let { subscriptions } = context;
   // console.log("查看下配置啊", maxLines);
   // Marked: create a statusBarItem
   myStatusBarItem = window.createStatusBarItem(StatusBarAlignment.Right, 100);
-console.log('这里不一定？？', window.activeTextEditor)
 
   subscriptions.push(myStatusBarItem);
 
+  // Marked: register events.
+
   subscriptions.push(
     workspace.onDidSaveTextDocument((doc: TextDocument) => {
-      if (doc.languageId !== language) {
-        language = doc.languageId;
-        execute(subscriptions, "changeLanguage");
-      }
+      execute(doc.languageId);
     })
   );
 
   subscriptions.push(
-    workspace.onDidOpenTextDocument(() => {
-      console.log('检查看看啊,onDidOpenTextDocument');
-      if (!language) {
-        language = window.activeTextEditor?.document.languageId as string;
-      }
-      updateStatusBarItem();
-      updateDecorations();
+    workspace.onDidOpenTextDocument((doc: TextDocument) => {
+      console.log("== 打开新文件 ==");
+      execute();
     })
-  )
+  );
 
-  execute(subscriptions, "init");
+  // register some listener that make sure the status bar
+  // item always up-to-date
+  subscriptions.push(
+    window.onDidChangeActiveTextEditor(() => {
+      console.log("== 切换激活编辑窗口 ==");
+
+      execute();
+    })
+  );
+
+  subscriptions.push(
+    workspace.onDidChangeTextDocument(() => {
+      console.log(" == 文件修改 ==");
+      execute();
+    })
+  );
+
+  subscriptions.push(
+    workspace.onDidChangeConfiguration(() => {
+      // TODO: 获取全部的配置
+      config = workspace.getConfiguration("maxLine");
+      maxLines = config.get("max") as number;
+      console.log("== 修改配置 ==");
+      execute();
+    })
+  );
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() {}
 
-function execute(subscriptions: any, tag: "init" | "changeLanguage") {
-  console.log("检查文件类型", language);
+function execute(languageId?: string) {
+  const language =
+    languageId ?? (window.activeTextEditor?.document.languageId as string); // TODO: 这里vscode 刚启动还没有激活编辑文件时，activeTextEditor 是 undefined
+
+  console.log("文件类型", language);
   if (!(config.get("language") as string[]).includes(language)) {
-    if (tag === "changeLanguage") {
-      myStatusBarItem.hide();
-      decorationType.dispose();
-    }
+    myStatusBarItem.hide();
+    decorationType.dispose();
   } else {
     // update status bar item once at start
     updateStatusBarItem();
     updateDecorations();
-
-    // register some listener that make sure the status bar
-    // item always up-to-date
-    subscriptions.push(
-      window.onDidChangeActiveTextEditor(() => {
-console.log('这里不一定？？', window.activeTextEditor)
-
-        updateStatusBarItem();
-        updateDecorations();
-      })
-    );
-
-    // Marked: check the lines of file when will save the file
-    subscriptions.push(
-      workspace.onDidChangeTextDocument(() => {
-        updateStatusBarItem();
-        updateDecorations();
-      })
-    );
-    
-    subscriptions.push(
-      workspace.onDidChangeConfiguration(() => {
-        config = workspace.getConfiguration("maxLine");
-        maxLines = config.get("max") as number;
-        updateStatusBarItem();
-        updateDecorations();
-      })
-    );
   }
 }
 
 function updateDecorations() {
   const n = window.activeTextEditor?.document.lineCount;
-  console.log("查看下代码行数", maxLines, n);
+  console.log("代码行数:", maxLines, n);
   decorationType.dispose();
   if (n && n > maxLines) {
     decorationType = getDecorationTypeFromConfig();
@@ -123,12 +113,10 @@ function updateStatusBarItem(): void {
     myStatusBarItem.text = `$(warning) Exceeds the maximum limit of ${maxLines} lines`;
     myStatusBarItem.color = "#e28085";
     myStatusBarItem.show();
-    // console.log('奇怪，这里怎么不显示了', myStatusBarItem)
   } else if (n && n <= maxLines) {
     myStatusBarItem.text = `Lines: ${n}`;
-    myStatusBarItem.color = undefined;
+    myStatusBarItem.color = undefined; // 清除自定义颜色，undefined 使用主题配色
     myStatusBarItem.show();
-    console.log('奇怪，这里怎么不显示了', myStatusBarItem);
   } else {
     myStatusBarItem.hide();
   }
