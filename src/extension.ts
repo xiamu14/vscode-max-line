@@ -110,7 +110,7 @@ function updateDecorations() {
 function updateStatusBarItem(): void {
   const n = window.activeTextEditor?.document.lineCount;
   if (n && n > maxLines) {
-    myStatusBarItem.text = `$(warning) Exceeds the maximum limit of ${maxLines} lines`;
+    myStatusBarItem.text = `$(warning) Lines: ${n}`;
     myStatusBarItem.color = "#e28085";
     myStatusBarItem.show();
   } else if (n && n <= maxLines) {
